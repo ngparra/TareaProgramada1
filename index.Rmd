@@ -85,11 +85,11 @@ m %>% addPolygons(
                  , "<br>"
                  , "<a href='"
                  , infomapa_covid19cr_cantones$geometry))%>% 
-       addLegend(pal = pal, values = ~confirmados, opacity = 0.7, title = NULL,
-             position = "bottomright")
+       addLegend(pal = pal, values = ~confirmados, opacity = 0.7, 
+                 title = "Rango de casos confirmados",
+                 position = "bottomright")
 
 ```
-
 
 ### Mapa de Covid-19 según la distribución de datos por Provincia en Costa Rica
 
@@ -132,7 +132,7 @@ mns <- infomapa_covid19cr_cantones %>%
 
 ``` 
 
-### Gráfico para la cantidad de Confirmados por Provinica de Covid-19 para Costa Rica  
+### Gráfico para la cantidad de Confirmados por Provincia de Covid-19 para Costa Rica  
 
 ```{r}
 tprovinciaconfirmados <-(infomapa_covid19cr %>% 
@@ -141,7 +141,6 @@ tprovinciaconfirmados <-(infomapa_covid19cr %>%
      summarize(confirmados = sum(confirmados, na.rm = TRUE)) %>% 
      arrange(desc(confirmados)))
 ggplot(tprovinciaconfirmados, aes(x=reorder(provincia, -confirmados), y=confirmados)) +
-     ggtitle("Casos confirmados en CR por provincia") +
      xlab("Provincia") + 
      ylab("Casos confirmados") +  
      geom_col() +
