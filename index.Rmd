@@ -55,7 +55,7 @@ valueBox(recuperadospais, icon = "fa-users", color="lightseagreen")
 Column {.tabset}
 -----------------------------------------------------------------------
 
-### Mapa de Covid-19 según la distribución de datos por Cantones en Costa Rica
+### Mapa de Covid-19 según la distribución de datos por cantones en Costa Rica
 
 ```{r}
 m <- leaflet(infomapa_covid19cr_cantones)
@@ -88,10 +88,9 @@ m %>% addPolygons(
        addLegend(pal = pal, values = ~confirmados, opacity = 0.7, 
                  title = "Rango de casos confirmados",
                  position = "bottomright")
-
 ```
 
-### Mapa de Covid-19 según la distribución de datos por Provincia en Costa Rica
+### Mapa de Covid-19 según la distribución de datos por provincia en Costa Rica
 
 ```{r}
 mns <- infomapa_covid19cr_cantones %>%
@@ -129,10 +128,9 @@ mns <- infomapa_covid19cr_cantones %>%
                 opacity = 0.7, 
                 title = "Rango de casos confirmados", 
                 position = "bottomright")
-
 ``` 
 
-### Gráfico para la cantidad de Confirmados por Provincia de Covid-19 para Costa Rica  
+### Gráfico para la cantidad de Confirmados por provincia de Covid-19 para Costa Rica  
 
 ```{r}
 tprovinciaconfirmados <-(infomapa_covid19cr %>% 
@@ -150,7 +148,7 @@ ggplot(tprovinciaconfirmados, aes(x=reorder(provincia, -confirmados), y=confirma
 
 Column {.sidebar data-width=450}
 -----------------------------------------------------------------------
-### Tabla de la cantidad de Confirmados, Fallecidos y Recuperados por Cantones de Covid-19 para Costa Rica  
+### Tabla de la cantidad de Confirmados, Fallecidos y Recuperados por cantones de Covid-19 para Costa Rica  
 
 ```{r}
 tablaconfirmados_fallecidos_recuperados <-(infomapa_covid19cr %>% 
