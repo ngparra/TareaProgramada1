@@ -22,7 +22,7 @@ infomapa_covid19cr_cantones = st_read("https://raw.githubusercontent.com/geoproc
 infomapa_covid19cr = st_drop_geometry(infomapa_covid19cr_cantones)
 ```
 
-Row {data-height=225}
+Row {data-height=200}
 -----------------------------------------------------------------------
 ### Total Casos Confirmado de Covid-19 en Costa Rica
 
@@ -54,13 +54,91 @@ valueBox(recuperadospais, icon = "fa-users", color="lightseagreen")
 
 Column {.tabset}
 -----------------------------------------------------------------------
+
+### Mapa de Covid-19 según la distribución de datos por Cantones en Costa Rica
+
+```{r}
+m <- leaflet(infomapa_covid19cr_cantones)
+pal <- colorBin("RdYlGn", infomapa_covid19cr_cantones$confirmados, bins =7, pretty = TRUE, na.color = "White")
+m %>% addPolygons(
+        fillColor = ~pal(confirmados),
+        weight = 1,
+        opacity = 2,
+        color = "black",
+        dashArray = "",
+        fillOpacity = 3,
+        popup = paste( "Cantón:"
+                 , infomapa_covid19cr_cantones$canton
+                 , "<br/>"
+                 ,"Casos Confirmados:"
+                 , infomapa_covid19cr_cantones$confirmados
+                 , "<br/>"
+                 ,"Casos Activos:"
+                 , infomapa_covid19cr_cantones$activos
+                 ,"<br/>"
+                 ,"Casos Recuperados:"
+                 , infomapa_covid19cr_cantones$recuperados
+                 ,"<br/>"
+                 ,"Fallecidos:"
+                 , infomapa_covid19cr_cantones$muertes
+                 ,"<br/>"
+                 , "<br>"
+                 , "<a href='"
+                 , infomapa_covid19cr_cantones$geometry))%>% 
+       addLegend(pal = pal, values = ~confirmados, opacity = 0.7, title = NULL,
+             position = "bottomright")
+
+```
+
+
+### Mapa de Covid-19 según la distribución de datos por Provincia en Costa Rica
+
+```{r}
+mns <- infomapa_covid19cr_cantones %>%
+       group_by(provincia) %>%
+       summarize(confirmados= sum(confirmados, na.rm = TRUE), activos = sum(activos, na.rm = TRUE),
+          muertes = sum(muertes, na.rm = TRUE), recuperados = sum(recuperados, na.rm = TRUE))
+       fy <- leaflet(mns)
+       pal <- colorBin("Spectral", mns$confirmados, bins = 7, na.color = "White")
+       fy %>% addPolygons(
+                fillColor = ~pal(confirmados),
+                weight = 1,
+                opacity = 2,
+                color = "black",
+                dashArray = "",
+                fillOpacity = 3,
+                popup = paste( "Provincia:"      
+                   , mns$provincia
+                   ,'<br/>'
+                   ,"Casos Confirmados:"
+                   , mns$confirmados
+                   ,'<br/>'
+                   ,"Casos Activos:"                        
+                   , mns$activos
+                   ,'<br/>'
+                   ,"Casos Recuperados:"
+                   , mns$recuperados
+                   ,'<br/>'
+                   ,"Fallecidos:"
+                   , mns$muertes
+                   , "<br>"
+                  , "<a href='"
+                   , mns$geometry))%>% 
+              addLegend(pal = pal, 
+                values = ~confirmados, 
+                opacity = 0.7, 
+                title = "Rango de casos confirmados", 
+                position = "bottomright")
+
+``` 
+
 ### Gráfico para la cantidad de Confirmados por Provinica de Covid-19 para Costa Rica  
 
 ```{r}
 tprovinciaconfirmados <-(infomapa_covid19cr %>% 
-  select( provincia, confirmados) %>% 
-   group_by(provincia) %>% 
-   summarize(confirmados = sum(confirmados, na.rm = TRUE)) %>% 
+     select( provincia, confirmados) %>% 
+     group_by(provincia) %>% 
+     summarize(confirmados = sum(confirmados, na.rm = TRUE)) %>% 
      arrange(desc(confirmados)))
 ggplot(tprovinciaconfirmados, aes(x=reorder(provincia, -confirmados), y=confirmados)) +
      ggtitle("Casos confirmados en CR por provincia") +
@@ -78,14 +156,10 @@ Column {.sidebar data-width=450}
 ```{r}
 tablaconfirmados_fallecidos_recuperados <-(infomapa_covid19cr %>% 
                   select(canton, confirmados, muertes, recuperados, provincia) %>% 
-                              group_by(canton) %>% 
-                              arrange(canton) )
-kable( tablaconfirmados_fallecidos_recuperados[1:82, c("canton","confirmados","muertes","recuperados"), drop = TRUE], 
+                  group_by(canton) %>% 
+                  arrange(canton))
+kable( tablaconfirmados_fallecidos_recuperados[1:82,   c("canton","confirmados","muertes","recuperados"), drop = TRUE], 
      col.names=c("Cantón","Confirmados","Fallecidos","Recuperados"))%>%
-     kable_styling() #%>%
-    #scroll_box(
-         #width = "400px", 
-        # height = "500px", 
-        # fixed_thead = TRUE)
+     kable_styling()
 ```
 
