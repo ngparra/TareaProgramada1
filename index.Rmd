@@ -1,0 +1,91 @@
+---
+title: "Tarea Programada 1"
+autor: "Yuliany Cordero, Nicole Parra y Fernanda Zúñiga"
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: row
+    vertical_layout: fill
+---
+
+```{r setup, include=FALSE}
+library(flexdashboard)
+library(sf)
+library(leaflet)
+library(knitr)
+library(kableExtra)
+library(dplyr)
+library(ggplot2)
+library(spData)
+
+infomapa_covid19cr_cantones = st_read("https://raw.githubusercontent.com/geoprocesamiento-2020i/datos/master/covid19/casos/cr/cr-covid19-cantones.geojson")
+
+infomapa_covid19cr = st_drop_geometry(infomapa_covid19cr_cantones)
+```
+
+Row {data-height=225}
+-----------------------------------------------------------------------
+### Total Casos Confirmado de Covid-19 en Costa Rica
+
+```{r}
+confirmadospaises <- infomapa_covid19cr %>% summarise(conftot=sum(confirmados, na.rm = TRUE))
+valueBox(confirmadospaises, icon = "fa-users", color="pink")
+```
+
+### Total Casos Activos de Covid-19 en Costa Rica
+
+```{r}
+activospaises <- infomapa_covid19cr %>% summarise(activostot=sum(activos, na.rm = TRUE))
+valueBox(activospaises, icon = "fa-users", color="aquamarine")
+```
+
+### Total Casos Fallecidos de Covid-19 en Costa Rica
+
+```{r}
+fallecidospaises <- infomapa_covid19cr %>% summarise(fallecidostot=sum(muertes, na.rm = TRUE))
+valueBox(fallecidospaises, icon = "fa-users", color="darksalmon")
+```
+
+### Total Casos Recuperados de Covid-19 en Costa Rica
+
+```{r}
+recuperadospais <- infomapa_covid19cr %>% summarise(recuperadostot=sum(recuperados, na.rm = TRUE))
+valueBox(recuperadospais, icon = "fa-users", color="lightseagreen")
+```
+
+Column {.tabset}
+-----------------------------------------------------------------------
+### Gráfico para la cantidad de Confirmados por Provinica de Covid-19 para Costa Rica  
+
+```{r}
+tprovinciaconfirmados <-(infomapa_covid19cr %>% 
+  select( provincia, confirmados) %>% 
+   group_by(provincia) %>% 
+   summarize(confirmados = sum(confirmados, na.rm = TRUE)) %>% 
+     arrange(desc(confirmados)))
+ggplot(tprovinciaconfirmados, aes(x=reorder(provincia, -confirmados), y=confirmados)) +
+     ggtitle("Casos confirmados en CR por provincia") +
+     xlab("Provincia") + 
+     ylab("Casos confirmados") +  
+     geom_col() +
+     geom_text(aes(label=confirmados), vjust=-0.3, size=3.5)
+```
+
+
+Column {.sidebar data-width=450}
+-----------------------------------------------------------------------
+### Tabla de la cantidad de Confirmados, Fallecidos y Recuperados por Cantones de Covid-19 para Costa Rica  
+
+```{r}
+tablaconfirmados_fallecidos_recuperados <-(infomapa_covid19cr %>% 
+                  select(canton, confirmados, muertes, recuperados, provincia) %>% 
+                              group_by(canton) %>% 
+                              arrange(canton) )
+kable( tablaconfirmados_fallecidos_recuperados[1:82, c("canton","confirmados","muertes","recuperados"), drop = TRUE], 
+     col.names=c("Cantón","Confirmados","Fallecidos","Recuperados"))%>%
+     kable_styling() #%>%
+    #scroll_box(
+         #width = "400px", 
+        # height = "500px", 
+        # fixed_thead = TRUE)
+```
+
